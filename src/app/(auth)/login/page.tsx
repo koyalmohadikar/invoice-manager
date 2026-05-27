@@ -159,12 +159,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <p className="text-center text-xs text-slate-400 mt-5">
-            Demo credentials:{' '}
-            <span className="font-medium text-slate-500">demo@finflow.app</span>{' '}
-            /{' '}
-            <span className="font-medium text-slate-500">demo1234</span>
-          </p>
         </div>
       </div>
     </div>

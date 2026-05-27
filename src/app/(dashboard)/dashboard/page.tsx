@@ -29,14 +29,23 @@ export default function DashboardPage() {
   const [stats, setStats]       = useState<IDashboardStats | null>(null);
   const [loading, setLoading]   = useState(true);
   const [seeding, setSeeding]   = useState(false);
+  const [seedError, setSeedError] = useState('');
 
   async function loadSampleData() {
     setSeeding(true);
+    setSeedError('');
     try {
-      await fetch('/api/seed', { method: 'POST' });
+      const seedRes = await fetch('/api/seed', { method: 'POST' });
+      const seedData = await seedRes.json().catch(() => ({}));
+      if (!seedRes.ok) {
+        setSeedError(seedData.error ?? `Seed failed (${seedRes.status})`);
+        return;
+      }
       const res = await fetch('/api/dashboard/stats');
       const d   = await res.json();
       if (d.success) setStats(d.data);
+    } catch (e) {
+      setSeedError('Network error — please try again.');
     } finally {
       setSeeding(false);
     }
@@ -108,6 +117,9 @@ export default function DashboardPage() {
             )}
           </button>
         </div>
+        {seedError && (
+          <p className="text-xs text-red-600 font-medium px-1 mt-1">{seedError}</p>
+        )}
       )}
 
       {/* Page header */}
