@@ -58,6 +58,7 @@ function inv(
 }
 
 export async function POST() {
+  try {
   const auth = await getAuthUser();
   if (!auth) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
@@ -295,4 +296,8 @@ export async function POST() {
     success: true,
     message: 'Sample data loaded — 6 clients, 15 invoices, 23 expenses.',
   });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
 }
