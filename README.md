@@ -6,7 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-green?style=flat-square&logo=mongodb)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?style=flat-square&logo=tailwindcss)
-![Gemini AI](https://img.shields.io/badge/Gemini-AI-orange?style=flat-square&logo=google)
+![Groq AI](https://img.shields.io/badge/Groq-Llama_3.3-orange?style=flat-square&logo=groq)
 
 ---
 
@@ -16,7 +16,7 @@ FinFlow is a full-stack finance management platform designed for **freelancers a
 
 The core problem it solves: freelancers often track invoices in spreadsheets, miss payment follow-ups, and have no clear picture of their monthly revenue vs. spending. FinFlow brings all of that into one clean, fast, AI-assisted web application.
 
-**Key differentiator:** A built-in AI assistant (powered by Google Gemini) that understands a plain-English project description and automatically generates a professional invoice — title, description, and itemised line items — in one click.
+**Key differentiator:** A built-in AI assistant (powered by Groq + Llama 3.3) that understands a plain-English project description and automatically generates a professional invoice — title, description, and itemised line items — in one click.
 
 ---
 
@@ -47,9 +47,9 @@ The core problem it solves: freelancers often track invoices in spreadsheets, mi
 - **Recent invoices** panel with direct navigation to each
 - **Quick count tiles** for All / Paid / Sent / Overdue invoices
 
-### AI Invoice Generation (Gemini)
+### AI Invoice Generation (Groq + Llama 3.3)
 - Describe a project in plain English (e.g. *"Logo design for a bakery"*)
-- One click calls the Gemini 1.5 Flash API
+- One click calls the Groq API with the `llama-3.3-70b-versatile` model
 - AI returns structured JSON: invoice title, professional description, and 2–4 suggested line items with realistic INR rates
 - Results are pre-filled into the form — user reviews and submits
 
@@ -75,7 +75,7 @@ The core problem it solves: freelancers often track invoices in spreadsheets, mi
 | Styling | Tailwind CSS v4 | Utility-first; consistent design system, no CSS files |
 | Charts | Recharts | Composable React chart components, minimal bundle cost |
 | Forms | React Hook Form + Zod v4 | Uncontrolled forms for perf; Zod for runtime validation |
-| AI | Google Gemini 1.5 Flash | Fast, free-tier available, structured JSON output |
+| AI | Groq + Llama 3.3 70B | Ultra-fast inference, free tier, structured JSON output |
 | Icons | Lucide React | Tree-shakeable, consistent stroke style |
 | Deployment | Vercel | Zero-config Next.js deployment with edge CDN |
 
@@ -105,7 +105,7 @@ invoice-manager/
 │   │   │   ├── clients/             # CRUD + [id]
 │   │   │   ├── expenses/            # CRUD + [id]
 │   │   │   ├── dashboard/stats/     # Aggregated stats
-│   │   │   └── ai/suggest/          # Gemini AI endpoint
+│   │   │   └── ai/suggest/          # Groq AI endpoint
 │   │   ├── globals.css
 │   │   ├── layout.tsx               # Root layout (Inter font, metadata)
 │   │   └── page.tsx                 # Marketing landing page
@@ -142,7 +142,7 @@ invoice-manager/
 
 - Node.js 18+
 - A MongoDB database (free tier on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
-- A Gemini API key (free at [Google AI Studio](https://aistudio.google.com/))
+- A Groq API key (free at [console.groq.com](https://console.groq.com))
 
 ### 1. Clone and Install
 
@@ -163,7 +163,7 @@ Edit `.env.local`:
 ```env
 MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/invoice-manager
 JWT_SECRET=a-long-random-secret-string-change-this
-GEMINI_API_KEY=your-key-from-google-ai-studio
+GROQ_API_KEY=your-key-from-console.groq.com
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
@@ -190,7 +190,7 @@ This project is configured for **zero-config Vercel deployment**:
 
 1. Push to a GitHub repository
 2. Import the repo at [vercel.com/new](https://vercel.com/new)
-3. Add the three environment variables (`MONGODB_URI`, `JWT_SECRET`, `GEMINI_API_KEY`) in Vercel project settings
+3. Add the four environment variables (`MONGODB_URI`, `JWT_SECRET`, `GROQ_API_KEY`, `NEXT_PUBLIC_APP_URL`) in Vercel project settings
 4. Deploy — every push to `main` triggers an automatic redeploy (CI/CD)
 
 ---
@@ -201,7 +201,7 @@ This project is configured for **zero-config Vercel deployment**:
 |----------|----------|-------------|
 | `MONGODB_URI` | Yes | MongoDB connection string |
 | `JWT_SECRET` | Yes | Secret key for signing JWTs — use a long random string in production |
-| `GEMINI_API_KEY` | No | Google AI Studio key — AI feature is disabled gracefully without it |
+| `GROQ_API_KEY` | Yes | Groq API key — required for AI invoice generation |
 | `NEXT_PUBLIC_APP_URL` | No | Base URL (used for metadata) |
 
 ---
