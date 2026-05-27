@@ -95,31 +95,33 @@ export default function DashboardPage() {
 
       {/* Empty-state banner — load sample data */}
       {isEmpty && (
-        <div className="flex flex-col sm:flex-row items-center gap-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl px-6 py-5">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
-            <Sparkles size={18} className="text-white" />
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col sm:flex-row items-center gap-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl px-6 py-5">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
+              <Sparkles size={18} className="text-white" />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <p className="font-semibold text-slate-800 text-sm">No data yet — load a demo dataset</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Populate your account with 6 clients, 15 invoices, and 23 expenses so you can explore every feature.
+              </p>
+            </div>
+            <button
+              onClick={loadSampleData}
+              disabled={seeding}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-60 transition-all active:scale-[0.97] flex-shrink-0"
+            >
+              {seeding ? (
+                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Loading…</>
+              ) : (
+                <><Sparkles size={14} /> Load Sample Data</>
+              )}
+            </button>
           </div>
-          <div className="flex-1 text-center sm:text-left">
-            <p className="font-semibold text-slate-800 text-sm">No data yet — load a demo dataset</p>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Populate your account with 6 clients, 15 invoices, and 23 expenses so you can explore every feature.
-            </p>
-          </div>
-          <button
-            onClick={loadSampleData}
-            disabled={seeding}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-60 transition-all active:scale-[0.97] flex-shrink-0"
-          >
-            {seeding ? (
-              <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Loading…</>
-            ) : (
-              <><Sparkles size={14} /> Load Sample Data</>
-            )}
-          </button>
+          {seedError && (
+            <p className="text-xs text-red-600 font-medium px-1">{seedError}</p>
+          )}
         </div>
-        {seedError && (
-          <p className="text-xs text-red-600 font-medium px-1 mt-1">{seedError}</p>
-        )}
       )}
 
       {/* Page header */}
