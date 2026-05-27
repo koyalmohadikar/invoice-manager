@@ -40,7 +40,7 @@ const InvoiceSchema = new Schema<IInvoiceDocument>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     clientId: { type: Schema.Types.ObjectId, ref: 'Client', required: true },
-    invoiceNumber: { type: String, required: true, unique: true },
+    invoiceNumber: { type: String, required: true },
     title: { type: String, required: true, trim: true, maxlength: 200 },
     description: { type: String, trim: true },
     lineItems: { type: [LineItemSchema], default: [] },
@@ -58,6 +58,9 @@ const InvoiceSchema = new Schema<IInvoiceDocument>(
   },
   { timestamps: true }
 );
+
+// Invoice numbers only need to be unique per user, not globally
+InvoiceSchema.index({ userId: 1, invoiceNumber: 1 }, { unique: true });
 
 export default mongoose.models.Invoice ||
   mongoose.model<IInvoiceDocument>('Invoice', InvoiceSchema);

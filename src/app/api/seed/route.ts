@@ -65,6 +65,17 @@ export async function POST() {
   await connectDB();
   const userId = new mongoose.Types.ObjectId(auth.userId);
 
+  // Drop the old global unique index on invoiceNumber if it still exists
+  // (replaced by compound index on userId+invoiceNumber in the schema)
+  try {
+    await Invoice.collection.dropIndex('invoiceNumber_1');
+  } catch {
+    // Index doesn't exist — that's fine
+  }
+
+  // 4-char hex suffix unique to this user — prevents duplicate invoiceNumber across users
+  const u = auth.userId.slice(-4).toUpperCase();
+
   // Wipe existing data for this user
   await Promise.all([
     Client.deleteMany({ userId }),
@@ -119,14 +130,14 @@ export async function POST() {
   // Paid invoices — spread across 6 months (updatedAt drives the chart)
   const invoiceDocs = [
     // Dec 2025
-    inv(userId, acme,      'INV-251201', 'Website Redesign Phase 1',
+    inv(userId, acme,      `INV-${u}-2512A`, 'Website Redesign Phase 1',
       'Complete overhaul of homepage and product pages.',
       [{ description: 'UI/UX Design', quantity: 40, rate: 350 },
        { description: 'Frontend Development', quantity: 30, rate: 400 }],
       18, 'paid', -180, 5, 15,
       'Net-30 terms. Payment received on time.'),
 
-    inv(userId, blueocean, 'INV-251202', 'Brand Identity Package',
+    inv(userId, blueocean, `INV-${u}-2512B`, 'Brand Identity Package',
       'Full brand kit including logo, colors, and typography guide.',
       [{ description: 'Logo Design', quantity: 1, rate: 8000 },
        { description: 'Brand Guidelines Document', quantity: 1, rate: 6000 },
@@ -134,28 +145,28 @@ export async function POST() {
       0, 'paid', -160, 5, 22),
 
     // Jan 2026
-    inv(userId, sunrise,   'INV-260101', 'SEO Audit & Strategy',
+    inv(userId, sunrise,   `INV-${u}-2601A`, 'SEO Audit & Strategy',
       'Technical SEO audit and 3-month content strategy.',
       [{ description: 'Technical SEO Audit', quantity: 1, rate: 12000 },
        { description: 'Keyword Research Report', quantity: 1, rate: 7000 },
        { description: 'Content Calendar (3 months)', quantity: 1, rate: 4000 }],
       18, 'paid', -130, 4, 18),
 
-    inv(userId, techvista, 'INV-260102', 'Mobile App UI Design',
+    inv(userId, techvista, `INV-${u}-2601B`, 'Mobile App UI Design',
       'Figma UI designs for iOS and Android application.',
       [{ description: 'Wireframes (20 screens)', quantity: 20, rate: 800 },
        { description: 'High-fidelity Mockups', quantity: 20, rate: 1000 }],
       0, 'paid', -120, 4, 28),
 
     // Feb 2026
-    inv(userId, acme,      'INV-260201', 'E-Commerce Integration',
+    inv(userId, acme,      `INV-${u}-2602A`, 'E-Commerce Integration',
       'WooCommerce setup and payment gateway integration.',
       [{ description: 'WooCommerce Configuration', quantity: 1, rate: 15000 },
        { description: 'Payment Gateway (Razorpay)', quantity: 1, rate: 8000 },
        { description: 'Product Catalogue Upload', quantity: 50, rate: 100 }],
       18, 'paid', -95, 3, 15),
 
-    inv(userId, redleaf,   'INV-260202', 'Social Media Campaign',
+    inv(userId, redleaf,   `INV-${u}-2602B`, 'Social Media Campaign',
       'Creatives and copy for 6-week Instagram/LinkedIn campaign.',
       [{ description: 'Campaign Strategy', quantity: 1, rate: 10000 },
        { description: 'Creative Posts (30)', quantity: 30, rate: 600 },
@@ -163,35 +174,35 @@ export async function POST() {
       0, 'paid', -85, 3, 25),
 
     // Mar 2026
-    inv(userId, blueocean, 'INV-260301', 'Landing Page Development',
+    inv(userId, blueocean, `INV-${u}-2603A`, 'Landing Page Development',
       'High-converting SaaS landing page with A/B test variants.',
       [{ description: 'Landing Page Design', quantity: 1, rate: 12000 },
        { description: 'React Development', quantity: 20, rate: 500 },
        { description: 'A/B Variant (2 pages)', quantity: 2, rate: 3000 }],
       18, 'paid', -65, 2, 20),
 
-    inv(userId, innovate,  'INV-260302', 'Backend API Development',
+    inv(userId, innovate,  `INV-${u}-2603B`, 'Backend API Development',
       'REST API for user authentication and data management.',
       [{ description: 'API Architecture Design', quantity: 1, rate: 8000 },
        { description: 'Node.js API Development', quantity: 40, rate: 450 }],
       0, 'paid', -55, 2, 28),
 
     // Apr 2026
-    inv(userId, techvista, 'INV-260401', 'Dashboard UI/UX Design',
+    inv(userId, techvista, `INV-${u}-2604A`, 'Dashboard UI/UX Design',
       'Admin dashboard design for SaaS analytics platform.',
       [{ description: 'User Research & Wireframes', quantity: 1, rate: 12000 },
        { description: 'Dashboard Design (15 screens)', quantity: 15, rate: 1200 },
        { description: 'Developer Handoff (Zeplin)', quantity: 1, rate: 4000 }],
       18, 'paid', -28, 1, 15),
 
-    inv(userId, sunrise,   'INV-260402', 'Content Writing Package',
+    inv(userId, sunrise,   `INV-${u}-2604B`, 'Content Writing Package',
       '10 long-form SEO articles for the company blog.',
       [{ description: 'SEO Blog Articles (2000 words)', quantity: 10, rate: 4000 },
        { description: 'Content Editing & Formatting', quantity: 10, rate: 500 }],
       0, 'paid', -20, 1, 25),
 
     // May 2026 — recently paid
-    inv(userId, acme,      'INV-260501', 'Full-Stack Web Application',
+    inv(userId, acme,      `INV-${u}-2605A`, 'Full-Stack Web Application',
       'Inventory management system with React + Node.js.',
       [{ description: 'Project Planning & Architecture', quantity: 1, rate: 8000 },
        { description: 'Frontend Development (React)', quantity: 50, rate: 400 },
@@ -200,21 +211,21 @@ export async function POST() {
       18, 'paid', -8, 0, 12),
 
     // Pending (sent) — not yet paid
-    inv(userId, redleaf,   'INV-260502', 'Brand Refresh & Rebranding',
+    inv(userId, redleaf,   `INV-${u}-2605B`, 'Brand Refresh & Rebranding',
       'Updated logo, colour palette, and brand voice document.',
       [{ description: 'Brand Strategy Session', quantity: 1, rate: 8000 },
        { description: 'Logo Redesign (3 concepts)', quantity: 1, rate: 12000 },
        { description: 'Brand Book (40 pages)', quantity: 1, rate: 10000 }],
       18, 'sent', 14, 0, 20),
 
-    inv(userId, innovate,  'INV-260503', 'API Performance Optimisation',
+    inv(userId, innovate,  `INV-${u}-2605C`, 'API Performance Optimisation',
       'Profiling and tuning of existing Node.js microservices.',
       [{ description: 'Performance Audit', quantity: 1, rate: 10000 },
        { description: 'Optimisation & Refactor', quantity: 20, rate: 600 }],
       18, 'sent', 21, 0, 21),
 
     // Overdue
-    inv(userId, blueocean, 'INV-260401B', 'Email Marketing Setup',
+    inv(userId, blueocean, `INV-${u}-2604C`, 'Email Marketing Setup',
       'Mailchimp automation sequences and template design.',
       [{ description: 'Email Template Design (5)', quantity: 5, rate: 2500 },
        { description: 'Automation Workflow Setup', quantity: 1, rate: 8000 }],
@@ -222,7 +233,7 @@ export async function POST() {
       'Follow up sent twice. Client unresponsive.'),
 
     // Draft
-    inv(userId, techvista, 'INV-260504', 'Mobile App Development Phase 2',
+    inv(userId, techvista, `INV-${u}-2605D`, 'Mobile App Development Phase 2',
       'Implementing push notifications and offline mode.',
       [{ description: 'Push Notification Integration', quantity: 1, rate: 12000 },
        { description: 'Offline Mode & Sync', quantity: 25, rate: 500 }],
